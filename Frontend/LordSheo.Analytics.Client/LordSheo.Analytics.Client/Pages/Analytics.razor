@@ -1,8 +1,21 @@
-﻿@using LordSheo.Analytics.Client.Model
+﻿@using ChartJs.Blazor
+@using ChartJs.Blazor.BarChart
+@using LordSheo.Analytics.Client.Model
 @using LordSheo.Analytics.Client.Services
 @inject AnalyticsService AnalyticsService
 
 @page "/analytics"
+
+<h3>Event Name Counts</h3>
+
+@if (eventNameCounts == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <Chart Config="@barChartConfig" />
+}
 
 <h3>Analytics Events</h3>
 
@@ -43,9 +56,37 @@ else
 
 @code {
     private List<AnalyticsEvent> events;
+    
+    private Dictionary<string, int> eventNameCounts;
+    private BarConfig barChartConfig;
 
     protected override async Task OnInitializedAsync()
     {
         events = await AnalyticsService.GetEventsAsync();
+
+        eventNameCounts = events
+            .GroupBy(e => e.EventName)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        barChartConfig = new BarConfig()
+        {
+            Options = new BarOptions()
+            {
+                Responsive = true,
+            },
+        };
+
+        foreach (var label in eventNameCounts.Keys)
+        {
+            barChartConfig.Data.Labels.Add(label);
+        }
+        
+        var dataset = new BarDataset<int>(eventNameCounts.Values.ToList())
+        {
+            Label = "Event Count",
+            BackgroundColor = "rgba(54, 162, 235, 0.6)"
+        };
+        
+        barChartConfig.Data.Datasets.Add(dataset);
     }
 }
