@@ -1,0 +1,51 @@
+﻿@using LordSheo.Analytics.Client.Model
+@using LordSheo.Analytics.Client.Services
+@inject AnalyticsService AnalyticsService
+
+@page "/analytics"
+
+<h3>Analytics Events</h3>
+
+@if (events == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!events.Any())
+{
+    <p>No analytics events found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Event Name</th>
+            <th>User Id</th>
+            <th>Timestamp (UTC)</th>
+            <th>Metadata</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var evt in events)
+        {
+            <tr>
+                <td>@evt.Id</td>
+                <td>@evt.EventName</td>
+                <td>@evt.UserId</td>
+                <td>@evt.Timestamp.ToString("u")</td>
+                <td>@evt.MetadataJson</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AnalyticsEvent> events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        events = await AnalyticsService.GetEventsAsync();
+    }
+}

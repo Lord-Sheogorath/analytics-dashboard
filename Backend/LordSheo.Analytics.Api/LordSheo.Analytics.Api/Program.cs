@@ -15,7 +15,19 @@ builder.Services.AddDbContext<AnalyticsDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+	options.AddDefaultPolicy(policy =>
+	{
+		policy.WithOrigins("https://localhost:7286") // <-- your Blazor app URL (adjust port if needed)
+			.AllowAnyHeader()
+			.AllowAnyMethod();
+	});
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
